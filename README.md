@@ -112,5 +112,6 @@ Test results will provide insights into which areas of the application have been
 - Ensure Elasticsearch is running before starting the API.
 - JWT token expiration is set to 120 minutes, adjust as needed.
 - Elasticsearch authentication is disabled in the current configuration for testing purposes.
+- All methods in API is GET methods. As improvement we can create models for body and validate it instead of query parameters validation
 
 
