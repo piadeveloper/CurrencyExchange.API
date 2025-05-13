@@ -1,0 +1,96 @@
+# User-specific files
+.idea/
+.vscode/
+
+# Windows image file caches
+Thumbs.db
+ehthumbs.db
+
+# Windows Installer files
+*.cab
+*.msi
+*.msm
+*.msp
+
+# Windows Installer files (additional)
+*.psd
+
+# JetBrains Rider/IntelliJ IDEA
+.idea/
+
+# ASP.NET Core build directories
+bin/
+obj/
+
+# VSCode directories
+.vscode/
+
+# ASP.NET Core temporary files
+.vs/
+
+# User-specific files
+*.user
+*.userosscache
+*.suo
+*.userprefs
+
+# Windows Installer files
+*.cab
+*.msi
+*.msm
+*.msp
+
+# Ignore .NET Core build output
+**/bin/
+**/obj/
+**/Properties/PublishProfiles/
+**/PublishOutput/
+
+# .NET Core generated files
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# ASP.NET Core logs
+logs/
+log/
+
+# VS for Mac specific
+.vscode/
+
+# Visual Studio for Mac
+.vscode/
+
+# JetBrains Rider
+.idea/
+
+# Windows Installer files
+*.cab
+*.msi
+*.msm
+*.msp
+
+# Mac-specific
+.DS_Store
+
+# Linux-specific
+*.swp
+
+# NPM and Yarn dependencies
+node_modules/
+
+# .NET Core global tool folder
+.dotnet/tools/
+
+# NuGet specific files
+.nuget/
+*.nupkg
+*.snupkg
+
+# .NET Core SDK cache files
+dotnet-tools/
+
+# Npm packages (when working with JS frameworks in your project)
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
