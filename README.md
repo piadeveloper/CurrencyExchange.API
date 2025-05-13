@@ -66,11 +66,11 @@ Visit: [http://localhost:8080/api/version/getversion](http://localhost:8080/api/
 ---
 
 #### **Application Endpoint examples**
-[http://localhost:8080/api/CurrencyConverter/latest?provider=Frankfurter&baseCurrency=USD&amount=1] (http://localhost:8080/api/CurrencyConverter/latest?provider=Frankfurter&baseCurrency=USD&amount=1) - return last retes for base currency
+1. http://localhost:8080/api/CurrencyConverter/latest?provider=Frankfurter&baseCurrency=USD&amount=1 - return last retes for base currency
 
-[http://localhost:8080/api/CurrencyConverter/timeseries/2021-01-01/2022-12-31?provider=Frankfurter&baseCurrency=USD&amount=1&page=5&pageSize=25] - return currency rates from 2021-01-01 to 2022-12-31. Information will start from 5 page, page will contain 25 items (dates) 
+2. http://localhost:8080/api/CurrencyConverter/timeseries/2021-01-01/2022-12-31?provider=Frankfurter&baseCurrency=USD&amount=1&page=5&pageSize=25 - return currency rates from 2021-01-01 to 2022-12-31. Information will start from 5 page, page will contain 25 items (dates) 
 
-[http://localhost:8080/api/CurrencyConverter/historical/2021-01-01?provider=Frankfurter&baseCurrency=USD&amount=1&page=1&pageSize=5] - return currency rates for 2021-01-01. Information will start from 1 page, page will contain 5 items (rates) 
+3. http://localhost:8080/api/CurrencyConverter/historical/2021-01-01?provider=Frankfurter&baseCurrency=USD&amount=1&page=1&pageSize=5 - return currency rates for 2021-01-01. Information will start from 1 page, page will contain 5 items (rates) 
 
 **Note:**
 1. In all endpoint examples we have provider=Frankfurter, we can remove this parameter and by default API will use Frankfurter as currency exchange API provider
