@@ -19,7 +19,7 @@ namespace CurrencyExchange.Integration.Tests
         private async Task AuthenticateAsync()
         {
             var username = "testuser";
-            var response = await _client.PostAsync($"/api/auth/login?username={username}", null);
+            var response = await _client.PostAsync($"/api/v1/auth/login?username={username}", null);
             response.EnsureSuccessStatusCode();
 
             var authResponse = await response.Content.ReadFromJsonAsync<AuthResponse>();
@@ -32,7 +32,7 @@ namespace CurrencyExchange.Integration.Tests
         {
             await AuthenticateAsync();
 
-            var response = await _client.GetAsync("/api/currencyconverter/latest?provider=Frankfurter&baseCurrency=EUR&amount=1");
+            var response = await _client.GetAsync("/api/v1/currencyconverter/latest?provider=Frankfurter&baseCurrency=EUR&amount=1");
             response.EnsureSuccessStatusCode();
 
             var result = await response.Content.ReadFromJsonAsync<CurrencyRatesResponse>();
@@ -46,7 +46,7 @@ namespace CurrencyExchange.Integration.Tests
         {
             await AuthenticateAsync();
 
-            var response = await _client.GetAsync("/api/currencyconverter/latest?provider=Frankfurter&baseCurrency=EUR&amount=-1");
+            var response = await _client.GetAsync("/api/v1/currencyconverter/latest?provider=Frankfurter&baseCurrency=EUR&amount=-1");
             Assert.Equal(System.Net.HttpStatusCode.BadRequest, response.StatusCode);
         }
 
@@ -55,7 +55,7 @@ namespace CurrencyExchange.Integration.Tests
         {
             await AuthenticateAsync();
 
-            var response = await _client.GetAsync("/api/currencyconverter/latest?provider=Frankfurter&baseCurrency=TRY&amount=1");
+            var response = await _client.GetAsync("/api/v1/currencyconverter/latest?provider=Frankfurter&baseCurrency=TRY&amount=1");
             Assert.Equal(System.Net.HttpStatusCode.BadRequest, response.StatusCode);
         }
 
@@ -65,7 +65,7 @@ namespace CurrencyExchange.Integration.Tests
             // Убираем авторизацию, если была установлена
             _client.DefaultRequestHeaders.Authorization = null;
 
-            var response = await _client.GetAsync("/api/currencyconverter/latest?provider=Frankfurter&baseCurrency=EUR&amount=1");
+            var response = await _client.GetAsync("/api/v1/currencyconverter/latest?provider=Frankfurter&baseCurrency=EUR&amount=1");
 
             Assert.Equal(System.Net.HttpStatusCode.Unauthorized, response.StatusCode);
         }
@@ -78,7 +78,7 @@ namespace CurrencyExchange.Integration.Tests
             await AuthenticateAsync();
 
             var date = DateTime.UtcNow.AddDays(-30).ToString("yyyy-MM-dd");
-            var response = await _client.GetAsync($"/api/currencyconverter/historical/{date}?provider=Frankfurter&baseCurrency=EUR&amount=1");
+            var response = await _client.GetAsync($"/api/v1/currencyconverter/historical/{date}?provider=Frankfurter&baseCurrency=EUR&amount=1");
 
             response.EnsureSuccessStatusCode();
 
@@ -95,7 +95,7 @@ namespace CurrencyExchange.Integration.Tests
             await AuthenticateAsync();
 
             var date = DateTime.UtcNow.AddDays(-30).ToString("yyyy-MM-dd");
-            var response = await _client.GetAsync($"/api/currencyconverter/historical/{date}?provider=Frankfurter&baseCurrency=EUR&amount=-1");
+            var response = await _client.GetAsync($"/api/v1/currencyconverter/historical/{date}?provider=Frankfurter&baseCurrency=EUR&amount=-1");
 
             Assert.Equal(System.Net.HttpStatusCode.BadRequest, response.StatusCode);
         }
@@ -106,7 +106,7 @@ namespace CurrencyExchange.Integration.Tests
             await AuthenticateAsync();
 
             var date = DateTime.UtcNow.AddDays(-30).ToString("yyyy-MM-dd");
-            var response = await _client.GetAsync($"/api/currencyconverter/historical/{date}?provider=Frankfurter&baseCurrency=XYZ&amount=1");
+            var response = await _client.GetAsync($"/api/v1/currencyconverter/historical/{date}?provider=Frankfurter&baseCurrency=XYZ&amount=1");
 
             Assert.Equal(System.Net.HttpStatusCode.BadRequest, response.StatusCode);
         }
@@ -118,7 +118,7 @@ namespace CurrencyExchange.Integration.Tests
             _client.DefaultRequestHeaders.Authorization = null;
 
             var date = DateTime.UtcNow.AddDays(-30).ToString("yyyy-MM-dd");
-            var response = await _client.GetAsync($"/api/currencyconverter/historical/{date}?provider=Frankfurter&baseCurrency=EUR&amount=1");
+            var response = await _client.GetAsync($"/api/v1/currencyconverter/historical/{date}?provider=Frankfurter&baseCurrency=EUR&amount=1");
 
             Assert.Equal(System.Net.HttpStatusCode.Unauthorized, response.StatusCode);
         }
@@ -133,7 +133,7 @@ namespace CurrencyExchange.Integration.Tests
             var startDate = DateTime.UtcNow.AddDays(-30).ToString("yyyy-MM-dd");
             var endDate = DateTime.UtcNow.ToString("yyyy-MM-dd");
 
-            var response = await _client.GetAsync($"/api/currencyconverter/timeseries/{startDate}/{endDate}?provider=Frankfurter&baseCurrency=EUR&amount=1");
+            var response = await _client.GetAsync($"/api/v1/currencyconverter/timeseries/{startDate}/{endDate}?provider=Frankfurter&baseCurrency=EUR&amount=1");
             response.EnsureSuccessStatusCode();
 
             var result = await response.Content.ReadFromJsonAsync<TimeSeriesResponse>();
@@ -150,7 +150,7 @@ namespace CurrencyExchange.Integration.Tests
             var startDate = DateTime.UtcNow.AddDays(-30).ToString("yyyy-MM-dd");
             var endDate = DateTime.UtcNow.ToString("yyyy-MM-dd");
 
-            var response = await _client.GetAsync($"/api/currencyconverter/timeseries/{startDate}/{endDate}?provider=Frankfurter&baseCurrency=EUR&amount=-1");
+            var response = await _client.GetAsync($"/api/v1/currencyconverter/timeseries/{startDate}/{endDate}?provider=Frankfurter&baseCurrency=EUR&amount=-1");
             Assert.Equal(System.Net.HttpStatusCode.BadRequest, response.StatusCode);
         }
         [Fact]
@@ -158,7 +158,7 @@ namespace CurrencyExchange.Integration.Tests
         {
             await AuthenticateAsync();
 
-            var response = await _client.GetAsync("/api/currencyconverter/timeseries/2025-02-30/2025-03-01?provider=Frankfurter&baseCurrency=EUR&amount=1");
+            var response = await _client.GetAsync("/api/v1/currencyconverter/timeseries/2025-02-30/2025-03-01?provider=Frankfurter&baseCurrency=EUR&amount=1");
             Assert.Equal(System.Net.HttpStatusCode.BadRequest, response.StatusCode);
         }
 
@@ -170,7 +170,7 @@ namespace CurrencyExchange.Integration.Tests
             var startDate = DateTime.UtcNow.AddDays(-30).ToString("yyyy-MM-dd");
             var endDate = DateTime.UtcNow.ToString("yyyy-MM-dd");
 
-            var response = await _client.GetAsync($"/api/currencyconverter/timeseries/{startDate}/{endDate}?provider=Frankfurter&baseCurrency=TRY&amount=1");
+            var response = await _client.GetAsync($"/api/v1/currencyconverter/timeseries/{startDate}/{endDate}?provider=Frankfurter&baseCurrency=TRY&amount=1");
             Assert.Equal(System.Net.HttpStatusCode.BadRequest, response.StatusCode);
         }
 
@@ -183,7 +183,7 @@ namespace CurrencyExchange.Integration.Tests
             var startDate = DateTime.UtcNow.AddDays(-30).ToString("yyyy-MM-dd");
             var endDate = DateTime.UtcNow.ToString("yyyy-MM-dd");
 
-            var response = await _client.GetAsync($"/api/currencyconverter/timeseries/{startDate}/{endDate}?provider=Frankfurter&baseCurrency=EUR&amount=1");
+            var response = await _client.GetAsync($"/api/v1/currencyconverter/timeseries/{startDate}/{endDate}?provider=Frankfurter&baseCurrency=EUR&amount=1");
 
             Assert.Equal(System.Net.HttpStatusCode.Unauthorized, response.StatusCode);
         }
