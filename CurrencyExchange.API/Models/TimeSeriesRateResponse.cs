@@ -8,7 +8,7 @@ namespace CurrencyExchange.API.Models
         public decimal Amount { get; set; }
 
         [JsonPropertyName("base")]
-        public string BaseCurrency { get; set; }
+        public required string BaseCurrency { get; set; }
 
         [JsonPropertyName("start_date")]
         public DateTime StartDate { get; set; }
@@ -17,6 +17,6 @@ namespace CurrencyExchange.API.Models
         public DateTime EndDate { get; set; }
 
         [JsonPropertyName("rates")]
-        public Dictionary<DateTime, Dictionary<string, decimal>> Rates { get; set; }
+        public Dictionary<DateTime, Dictionary<string, decimal>>? Rates { get; set; }
     }
 }

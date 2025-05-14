@@ -6,7 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 namespace CurrencyExchange.API.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/v{version:apiVersion}/[controller]")]
+    [ApiVersion("1.0")]
     [Authorize(Roles = "User")]
     [UnsupportedCurrencyFilter]
     public class CurrencyConverterController : ControllerBase

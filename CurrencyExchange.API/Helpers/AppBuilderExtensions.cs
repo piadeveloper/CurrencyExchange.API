@@ -3,6 +3,9 @@ using CurrencyExchange.API.Providers;
 using CurrencyExchange.API.Providers.Interfaces;
 using CurrencyExchange.API.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
+using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -109,12 +112,16 @@ namespace CurrencyExchange.API.Helpers
         {
             builder.Services.AddSwaggerGen(options =>
             {
-                options.SwaggerDoc("v1", new OpenApiInfo
+                var provider = builder.Services.BuildServiceProvider().GetRequiredService<IApiVersionDescriptionProvider>();
+                foreach (var description in provider.ApiVersionDescriptions)
                 {
-                    Version = "v1",
-                    Title = "Currency Exchange API",
-                    Description = "API for currency exchange"
-                });
+                    options.SwaggerDoc(description.GroupName, new()
+                    {
+                        Title = $"Currency Exchange API {description.ApiVersion}",
+                        Version = description.ApiVersion.ToString(),
+                        Description = "API for currency exchange"
+                    });
+                }
 
                 options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
@@ -219,6 +226,30 @@ namespace CurrencyExchange.API.Helpers
                         }
                 };*/
                 });
+
+            return builder;
+        }
+
+        public static WebApplicationBuilder AddApiVersioning(this WebApplicationBuilder builder)
+        {
+            builder.Services.AddApiVersioning(options =>
+            {
+                options.DefaultApiVersion = new ApiVersion(1, 0);
+                options.AssumeDefaultVersionWhenUnspecified = true;
+                options.ReportApiVersions = true;
+
+                options.ApiVersionReader = ApiVersionReader.Combine(
+                    new UrlSegmentApiVersionReader(),
+                    new HeaderApiVersionReader("x-api-version"),
+                    new QueryStringApiVersionReader("api-version")
+                );
+            });
+
+            builder.Services.AddVersionedApiExplorer(options =>
+            {
+                options.GroupNameFormat = "'v'VVV";
+                options.SubstituteApiVersionInUrl = true;
+            });
 
             return builder;
         }

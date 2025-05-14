@@ -34,7 +34,7 @@ namespace CurrencyExchange.API.Providers
         {
             string cacheKey = $"latest_{baseCurrency}_{amount}";
 
-            if (!_cache.TryGetValue(cacheKey, out CurrencyRatesResponse cachedRates))
+            if (!_cache.TryGetValue(cacheKey, out CurrencyRatesResponse? cachedRates))
             {
                 cachedRates = await GetAsync<CurrencyRatesResponse>($"latest?from={baseCurrency}&amount={amount}");
                 if (cachedRates != null)
@@ -42,6 +42,19 @@ namespace CurrencyExchange.API.Providers
                     _cache.Set(cacheKey, cachedRates, TimeSpan.FromMinutes(10));
                 }
             }
+
+            if (cachedRates is null)
+            {
+                // depends on requirements we can throw some exception here
+                return new CurrencyRatesResponse
+                {
+                    Amount = amount,
+                    BaseCurrency = baseCurrency,
+                    Date = DateTime.UtcNow,
+                    Rates = new Dictionary<string, decimal>()
+                };
+            }
+
             var response = new CurrencyRatesResponse
             {
                 Amount = amount,
@@ -61,7 +74,7 @@ namespace CurrencyExchange.API.Providers
         {
             string cacheKey = $"historical_{date:yyyy-MM-dd}_{baseCurrency}_{amount}_{page}_{pageSize}";
 
-            if (!_cache.TryGetValue(cacheKey, out HistoricalRatesResponse cachedRates))
+            if (!_cache.TryGetValue(cacheKey, out HistoricalRatesResponse? cachedRates))
             {
                 cachedRates = await GetAsync<HistoricalRatesResponse>($"{date:yyyy-MM-dd}?from={baseCurrency}&amount={amount}");
                 if(cachedRates != null)
@@ -69,8 +82,21 @@ namespace CurrencyExchange.API.Providers
                     _cache.Set(cacheKey, cachedRates, TimeSpan.FromMinutes(10));
                 }
             }
-            var totalItems = cachedRates.Rates.Count;
-            var paginatedRates = cachedRates.Rates.Where(r => !UnsupportedCurrencies.ExcludedCurrencies.Contains(r.Key.ToUpper()))
+
+            if (cachedRates is null)
+            {
+                // depends on requirements we can throw some exception here
+                return new HistoricalRatesResponse()
+                {
+                    Amount = amount,
+                    BaseCurrency = baseCurrency,
+                    Date = DateTime.UtcNow,
+                    Rates = new Dictionary<string, decimal>()
+                };
+            }
+
+            var totalItems = cachedRates?.Rates?.Count ?? 0;
+            var paginatedRates = cachedRates?.Rates?.Where(r => !UnsupportedCurrencies.ExcludedCurrencies.Contains(r.Key.ToUpper()))
                 .OrderBy(r => r.Key)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
@@ -85,7 +111,7 @@ namespace CurrencyExchange.API.Providers
                 Rates = paginatedRates,
                 TotalRatesCount = totalItems,
                 CurrentPage = page,
-                RatesCount = paginatedRates.Count()
+                RatesCount = paginatedRates?.Count()??0
             };
 
             return response;
@@ -101,7 +127,7 @@ namespace CurrencyExchange.API.Providers
         {
             string cacheKey = $"timeseries_{startDate:yyyy-MM-dd}_{endDate:yyyy-MM-dd}_{baseCurrency}_{amount}_{page}_{pageSize}";
 
-            if (!_cache.TryGetValue(cacheKey, out TimeSeriesResponse cachedData))
+            if (!_cache.TryGetValue(cacheKey, out TimeSeriesResponse? cachedData))
             {
                 cachedData = await GetAsync<TimeSeriesResponse>($"{startDate:yyyy-MM-dd}..{endDate:yyyy-MM-dd}?from={baseCurrency}&amount={amount}");
                 if (cachedData != null)
@@ -110,12 +136,25 @@ namespace CurrencyExchange.API.Providers
                 }
             }
 
-            var totalItems = cachedData.Rates.Count;
-            var paginatedRates = cachedData.Rates
-                .OrderBy(r => r.Key)
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .ToDictionary(r => r.Key, r => r.Value.Where(r => !UnsupportedCurrencies.ExcludedCurrencies.Contains(r.Key.ToUpper())).ToDictionary());
+            if (cachedData is null)
+            {
+                // depends on requirements we can throw some exception here
+                return new TimeSeriesResponse()
+                {
+                    Amount = amount,
+                    BaseCurrency = baseCurrency,
+                    StartDate = DateTime.UtcNow,
+                    EndDate = DateTime.UtcNow,
+                    Rates = new Dictionary<DateTime, Dictionary<string, decimal>>()
+                };
+            }
+
+            var totalItems = cachedData?.Rates?.Count ?? 0;
+            var paginatedRates = cachedData?.Rates
+                ?.OrderBy(r => r.Key)
+                ?.Skip((page - 1) * pageSize)
+                ?.Take(pageSize)
+                ?.ToDictionary(r => r.Key, r => r.Value.Where(r => !UnsupportedCurrencies.ExcludedCurrencies.Contains(r.Key.ToUpper())).ToDictionary());
 
             
             var response = new TimeSeriesResponse
@@ -127,7 +166,7 @@ namespace CurrencyExchange.API.Providers
                 Rates = paginatedRates,
                 TotalRatesCount = totalItems, 
                 CurrentPage = page,
-                RatesCount = paginatedRates.Count()
+                RatesCount = paginatedRates?.Count() ?? 0
             };
 
             return response;
@@ -137,10 +176,15 @@ namespace CurrencyExchange.API.Providers
         {
             string cacheKey = "available_currencies";
 
-            if (!_cache.TryGetValue(cacheKey, out CurrenciesResponse cachedData))
+            if (!_cache.TryGetValue(cacheKey, out CurrenciesResponse? cachedData))
             {
                 cachedData = await GetAsync<CurrenciesResponse>("currencies");
                 _cache.Set(cacheKey, cachedData, TimeSpan.FromMinutes(10));
+            }
+
+            if (cachedData is null) 
+            {
+                return new CurrenciesResponse();
             }
 
             return cachedData;
@@ -163,7 +207,15 @@ namespace CurrencyExchange.API.Providers
             HttpResponseMessage response = await _httpClient.GetAsync(endpoint);
             response.EnsureSuccessStatusCode();
             string json = await response.Content.ReadAsStringAsync();
-            return JsonSerializer.Deserialize<T>(json, _jsonOptions);
+
+            T? result = JsonSerializer.Deserialize<T>(json, _jsonOptions);
+
+            if (result is null)
+            {
+                throw new InvalidOperationException($"Failed to deserialize response from '{endpoint}' to '{typeof(T)}'.");
+            }
+
+            return result;
         }
     }
 }

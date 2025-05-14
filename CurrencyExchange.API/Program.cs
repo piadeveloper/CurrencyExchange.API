@@ -6,6 +6,8 @@ builder.Services.AddMemoryCache();
 
 builder.Services.AddControllers();
 
+builder.AddApiVersioning();
+
 builder.Services.AddEndpointsApiExplorer();
 
 builder.AddSwagger();

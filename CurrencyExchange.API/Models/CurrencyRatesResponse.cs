@@ -8,12 +8,12 @@ namespace CurrencyExchange.API.Models
         public decimal Amount { get; set; }
 
         [JsonPropertyName("base")]
-        public string BaseCurrency { get; set; }
+        public required string BaseCurrency { get; set; }
 
         [JsonPropertyName("date")]
         public DateTime Date { get; set; }
 
         [JsonPropertyName("rates")]
-        public Dictionary<string, decimal> Rates { get; set; }
+        public Dictionary<string, decimal>? Rates { get; set; }
     }
 }

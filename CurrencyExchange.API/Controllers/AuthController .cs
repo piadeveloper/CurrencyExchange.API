@@ -5,7 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 namespace CurrencyExchange.API.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/v{version:apiVersion}/[controller]")]
+    [ApiVersion("1.0")]
     public class AuthController : ControllerBase
     {
         private readonly JwtTokenService _jwtTokenService;

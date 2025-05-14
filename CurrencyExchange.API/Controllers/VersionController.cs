@@ -4,7 +4,8 @@ using System.Reflection;
 namespace CurrencyExchange.API.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/v{version:apiVersion}/[controller]")]
+    [ApiVersion("1.0")]
     public class VersionController : ControllerBase
     {
         /// <summary>
