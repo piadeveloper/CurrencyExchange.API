@@ -57,7 +57,7 @@ namespace CurrencyExchange.API.Helpers
         
         public static WebApplicationBuilder AddSerilog(this WebApplicationBuilder builder)
         {
-            Serilog.Debugging.SelfLog.Enable(Console.Error);
+            //uncomment for debug Serilog.Debugging.SelfLog.Enable(Console.Error);
             builder.Host.UseSerilog((context, config) =>
             {
                 config.ReadFrom.Configuration(context.Configuration)
@@ -165,9 +165,9 @@ namespace CurrencyExchange.API.Helpers
                         ValidAlgorithms = new[] { SecurityAlgorithms.HmacSha256 },
                         ClockSkew = TimeSpan.Zero
                     };
+                    /* this code is for debug only. It should be deleted for prod
                     options.Events = new JwtBearerEvents
                     {
-                        // this code is for debug only. It should be deleted for prod
                         OnAuthenticationFailed = context =>
                         {
                             Console.WriteLine("Authentication failed: " + context.Exception.Message);
@@ -217,7 +217,7 @@ namespace CurrencyExchange.API.Helpers
 
                             return Task.CompletedTask;
                         }
-                    };
+                };*/
                 });
 
             return builder;
