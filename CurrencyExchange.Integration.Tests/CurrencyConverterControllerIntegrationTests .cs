@@ -1,6 +1,8 @@
 ﻿using CurrencyExchange.API;
 using CurrencyExchange.API.Models;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Testing;
+using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using Xunit;
@@ -69,6 +71,8 @@ namespace CurrencyExchange.Integration.Tests
 
             Assert.Equal(System.Net.HttpStatusCode.Unauthorized, response.StatusCode);
         }
+
+
         /*End tests for latest*/
 
         /*Start tests for historical*/
@@ -122,6 +126,7 @@ namespace CurrencyExchange.Integration.Tests
 
             Assert.Equal(System.Net.HttpStatusCode.Unauthorized, response.StatusCode);
         }
+
         /*End tests for historical*/
 
         /*Start tests for timeseries*/
@@ -187,6 +192,15 @@ namespace CurrencyExchange.Integration.Tests
 
             Assert.Equal(System.Net.HttpStatusCode.Unauthorized, response.StatusCode);
         }
+
         /*End tests for timeseries*/
+
+        [Fact]
+        public async Task RequestLoggingMiddleware_ShouldHandleExceptionGracefully()
+        {
+            var response = await _client.GetAsync("/api/v2/InvalidEndpoint");
+
+            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        }
     }
 }
