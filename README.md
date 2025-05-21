@@ -68,11 +68,42 @@ endpoint should return assembly api version
 ---
 
 #### **Application Endpoint examples**
-1. http://localhost:8080/api/v1/CurrencyConverter/latest?provider=Frankfurter&baseCurrency=USD&amount=1 - return last retes for base currency
+**V1**
+1. HTTP GET http://localhost:8080/api/v1/CurrencyConverter/latest?provider=Frankfurter&baseCurrency=USD&amount=1 - return last retes for base currency
 
-2. http://localhost:8080/api/v1/CurrencyConverter/timeseries/2021-01-01/2022-12-31?provider=Frankfurter&baseCurrency=USD&amount=1&page=5&pageSize=25 - return currency rates from 2021-01-01 to 2022-12-31. Information will start from 5 page, page will contain 25 items (dates) 
+2. HTTP GET http://localhost:8080/api/v1/CurrencyConverter/timeseries/2021-01-01/2022-12-31?provider=Frankfurter&baseCurrency=USD&amount=1&page=5&pageSize=25 - return currency rates from 2021-01-01 to 2022-12-31. Information will start from 5 page, page will contain 25 items (dates) 
 
-3. http://localhost:8080/api/v1/CurrencyConverter/historical/2021-01-01?provider=Frankfurter&baseCurrency=USD&amount=1&page=1&pageSize=5 - return currency rates for 2021-01-01. Information will start from 1 page, page will contain 5 items (rates) 
+3. HTTP GET http://localhost:8080/api/v1/CurrencyConverter/historical/2021-01-01?provider=Frankfurter&baseCurrency=USD&amount=1&page=1&pageSize=5 - return currency rates for 2021-01-01. Information will start from 1 page, page will contain 5 items (rates) 
+
+**V2**
+1. HTTP POST http://localhost:8080/api/v2/CurrencyConverter/latest - return last retes for base currency
+{
+ "provider": "Frankfurter" // if leave this parameter empty, "Frankfurter" would be used by default
+ "baseCurrency": USD
+ "amount": 1 // min value 0.01
+}
+
+2. HTTP POST http://localhost:8080/api/v2/CurrencyConverter/timeseries - return currency rates between requested dates
+{
+ "startDate": "2021-01-01", // date is mandatory
+ "endDate": "2022-01-01", // date is mandatory
+ "provider":"Frankfurter", // if leave this parameter empty, "Frankfurter" would be used by default
+ "baseCurrency":"USD",
+ "amount": 1, // min value 0.01
+ "page": 1, // Information will start from 1 page
+ "pageSize": 5	// Page will contain 5 items (rates) 
+}
+
+3. HTTP POST http://localhost:8080/api/v2/CurrencyConverter/historical - return currency rates for requested date. 
+{
+ "date": "2021-01-01", // date is mandatory
+ "provider":"Frankfurter", // if leave this parameter empty, "Frankfurter" would be used by default
+ "baseCurrency":"USD",
+ "amount": 1, // min value 0.01
+ "page": 1, // Information will start from 1 page
+ "pageSize": 5	// Page will contain 5 items (rates) 
+}
+
 
 **Note:**
 1. In all endpoint examples we have provider=Frankfurter, we can remove this parameter and by default API will use Frankfurter as currency exchange API provider

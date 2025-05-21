@@ -3,6 +3,9 @@
 public class HistoricalRatesRequest
 {
     [Required]
+    public DateTime Date { get; set; }
+
+    [Required]
     public string Provider { get; set; } = "Frankfurter";
 
     [Required]

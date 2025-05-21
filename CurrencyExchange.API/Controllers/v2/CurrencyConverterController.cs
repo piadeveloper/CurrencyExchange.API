@@ -42,12 +42,10 @@ namespace CurrencyExchange.API.Controllers.V2
             return Ok(result);
         }
 
-        [HttpPost("historical/{date:datetime}")]
-        public async Task<ActionResult<HistoricalRatesResponse>> GetHistoricalRates(
-            DateTime date,
-            [FromBody] HistoricalRatesRequest request)
+        [HttpPost("historical")]
+        public async Task<ActionResult<HistoricalRatesResponse>> GetHistoricalRates([FromBody] HistoricalRatesRequest request)
         {
-            if (date > DateTime.UtcNow)
+            if (request.Date > DateTime.UtcNow)
             {
                 return BadRequest(new ProblemDetails
                 {
@@ -69,7 +67,7 @@ namespace CurrencyExchange.API.Controllers.V2
                 });
             }
 
-            var result = await provider.GetHistoricalRatesAsync(date, request.BaseCurrency, request.Amount, request.Page, request.PageSize);
+            var result = await provider.GetHistoricalRatesAsync(request.Date, request.BaseCurrency, request.Amount, request.Page, request.PageSize);
             return Ok(result);
         }
 
