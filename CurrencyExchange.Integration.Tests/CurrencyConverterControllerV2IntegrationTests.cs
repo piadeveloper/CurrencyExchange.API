@@ -20,7 +20,8 @@ namespace CurrencyExchange.API.IntegrationTests
         private async Task AuthenticateAsync()
         {
             var username = "testuser";
-            var response = await _client.PostAsync($"/api/v1/auth/login?username={username}", null);
+            var userSecret = "secret";
+            var response = await _client.PostAsync($"/api/v1/auth/login?username={username}&userSecret={userSecret}", null);
             response.EnsureSuccessStatusCode();
 
             var authResponse = await response.Content.ReadFromJsonAsync<AuthResponse>();

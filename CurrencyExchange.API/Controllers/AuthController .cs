@@ -17,10 +17,15 @@ namespace CurrencyExchange.API.Controllers
         }
 
         [HttpPost("login")]
-        public IActionResult Login([FromQuery] string username)
+        public IActionResult Login([FromQuery] string username, [FromQuery] string UserSecret)
         {
-            if (string.IsNullOrWhiteSpace(username))
-                return BadRequest("Username is required.");
+            if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(UserSecret))
+                return BadRequest("Username and UserSecret is required.");
+
+            // TO DO: implement real user name and password checks
+            if (username == "invalid_key")
+                return Unauthorized("User name is invalid");
+            
 
             var token = _jwtTokenService.GenerateToken(username);
 

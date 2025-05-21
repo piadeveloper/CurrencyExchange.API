@@ -68,6 +68,19 @@ endpoint should return assembly api version
 ---
 
 #### **Application Endpoint examples**
+**Auth**
+For getting JWT token use this endpoint:
+HTTP POST http://localhost:8080/api/v1/Auth/login?userName=Igor.P&userSecret=secret
+userName - mandatory parameter. Random user name. If you send invalid_key as userName you will receive HTTP 401 (for test purposes)
+userSecret - mandatory parameter.
+Endpoint returns JWT token, which can be used as Bearer token with all enpoint below
+
+Reponse example:
+{
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJJZ29yLlAiLCJqdGkiOiJlNWExOTRjZS03Y2RkLTRkZGYtODViNC05NTg4ODNkNmMwY2UiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiSWdvci5QIiwiaHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS93cy8yMDA4LzA2L2lkZW50aXR5L2NsYWltcy9yb2xlIjoiVXNlciIsImV4cCI6MTc0NzgyMzA2MSwiaXNzIjoiQ3VycmVuY3lFeGNoYW5nZUFQSSIsImF1ZCI6IkN1cnJlbmN5RXhjaGFuZ2VDbGllbnRzIn0.an3O0ddPVCVhU3RM374b4UnZaJu2Qld7PoL1XmbTVsE",
+    "expiresAt": "2025-05-21T07:24:21.5015351Z"
+}
+
 **V1**
 1. HTTP GET http://localhost:8080/api/v1/CurrencyConverter/latest?provider=Frankfurter&baseCurrency=USD&amount=1 - return last retes for base currency
 
