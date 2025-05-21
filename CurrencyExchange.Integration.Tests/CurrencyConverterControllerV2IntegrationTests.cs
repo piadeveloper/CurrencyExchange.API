@@ -4,6 +4,7 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using CurrencyExchange.API.Models;
 using CurrencyExchange.Integration.Tests;
+using Microsoft.AspNetCore.Mvc;
 
 namespace CurrencyExchange.API.IntegrationTests
 {
@@ -49,6 +50,61 @@ namespace CurrencyExchange.API.IntegrationTests
         }
 
         [Fact]
+        public async Task Post_LatestRates_WithUnsupportedCurrency_ShouldReturnBadRequest()
+        {
+            await AuthenticateAsync();
+
+            var request = new LatestRatesRequest
+            {
+                Provider = "Frankfurter",
+                BaseCurrency = "XYZ",
+                Amount = 100
+            };
+
+            var response = await _client.PostAsJsonAsync("/api/v2/CurrencyConverter/latest", request);
+
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            var details = await response.Content.ReadFromJsonAsync<ProblemDetails>();
+            Assert.Contains("not supported", details?.Detail, StringComparison.OrdinalIgnoreCase);
+        }
+
+        [Fact]
+        public async Task Post_LatestRates_WhenProviderReturnsError_ShouldReturnBadRequest()
+        {
+            await AuthenticateAsync();
+
+            var request = new LatestRatesRequest
+            {
+                Provider = "Frankfurter",
+                BaseCurrency = "INVALID",
+                Amount = 100
+            };
+
+            var response = await _client.PostAsJsonAsync("/api/v2/CurrencyConverter/latest", request);
+
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task Post_LatestRates_WithNegativeAmount_ShouldReturnBadRequest()
+        {
+            await AuthenticateAsync();
+
+            var request = new LatestRatesRequest
+            {
+                Provider = "Frankfurter",
+                BaseCurrency = "EUR",
+                Amount = -5
+            };
+
+            var response = await _client.PostAsJsonAsync("/api/v2/CurrencyConverter/latest", request);
+
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            var problem = await response.Content.ReadFromJsonAsync<ProblemDetails>();
+            Assert.Contains("greater than zero", problem?.Extensions["errors"]?.ToString() ?? "");
+        }
+
+        [Fact]
         public async Task Post_HistoricalRates_ShouldReturnSuccess()
         {
             await AuthenticateAsync();
@@ -73,6 +129,29 @@ namespace CurrencyExchange.API.IntegrationTests
             Assert.NotEmpty(result.Rates);
         }
 
+
+        [Fact]
+        public async Task Post_HistoricalRates_WithFutureDate_ShouldReturnBadRequest()
+        {
+            await AuthenticateAsync();
+
+            var futureDate = DateTime.UtcNow.AddDays(10);
+
+            var request = new HistoricalRatesRequest
+            {
+                Date = futureDate,
+                Provider = "Frankfurter",
+                BaseCurrency = "EUR",
+                Amount = 10,
+                Page = 1,
+                PageSize = 10
+            };
+
+            var response = await _client.PostAsJsonAsync($"/api/v2/CurrencyConverter/historical", request);
+
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
+
         [Fact]
         public async Task Post_TimeSeries_ShouldReturnSuccess()
         {
@@ -89,13 +168,57 @@ namespace CurrencyExchange.API.IntegrationTests
                 PageSize = 10
             };
 
-            var response = await _client.PostAsJsonAsync("/api/v2.0/CurrencyConverter/timeseries", request);
+            var response = await _client.PostAsJsonAsync("/api/v2/CurrencyConverter/timeseries", request);
 
             response.EnsureSuccessStatusCode();
             var result = await response.Content.ReadFromJsonAsync<TimeSeriesResponse>();
 
             Assert.NotNull(result);
             Assert.NotEmpty(result.Rates);
+        }
+
+        [Fact]
+        public async Task Post_TimeSeries_WithInvalidDateRange_ShouldReturnBadRequest()
+        {
+            await AuthenticateAsync();
+
+            var request = new TimeSeriesRequest
+            {
+                Provider = "Frankfurter",
+                BaseCurrency = "EUR",
+                Amount = 10,
+                StartDate = DateTime.UtcNow,
+                EndDate = DateTime.UtcNow.AddDays(-10),
+                Page = 1,
+                PageSize = 10
+            };
+
+            var response = await _client.PostAsJsonAsync("/api/v2/CurrencyConverter/timeseries", request);
+
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            var problem = await response.Content.ReadFromJsonAsync<ProblemDetails>();
+            Assert.Contains("Start date", problem?.Detail ?? "");
+        }
+
+        [Fact]
+        public async Task Post_TimeSeries_WithZeroPage_ShouldReturnBadRequest()
+        {
+            await AuthenticateAsync();
+
+            var request = new TimeSeriesRequest
+            {
+                Provider = "Frankfurter",
+                BaseCurrency = "EUR",
+                Amount = 10,
+                StartDate = DateTime.UtcNow.AddDays(-10),
+                EndDate = DateTime.UtcNow,
+                Page = 0, // Неверное значение
+                PageSize = 10
+            };
+
+            var response = await _client.PostAsJsonAsync("/api/v2/CurrencyConverter/timeseries", request);
+
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         }
 
         [Fact]
@@ -112,6 +235,30 @@ namespace CurrencyExchange.API.IntegrationTests
 
             Assert.NotNull(result);
             Assert.NotEmpty(result.Keys);
+        }
+
+        [Theory]
+        [InlineData(0, 10)]
+        [InlineData(1, 0)]
+        [InlineData(0, 0)]
+        public async Task Post_TimeSeries_WithInvalidPagination_ShouldReturnBadRequest(int page, int pageSize)
+        {
+            await AuthenticateAsync();
+
+            var request = new TimeSeriesRequest
+            {
+                Provider = "Frankfurter",
+                BaseCurrency = "EUR",
+                Amount = 10,
+                StartDate = DateTime.UtcNow.AddDays(-10),
+                EndDate = DateTime.UtcNow,
+                Page = page,
+                PageSize = pageSize
+            };
+
+            var response = await _client.PostAsJsonAsync("/api/v2/CurrencyConverter/timeseries", request);
+
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         }
 
         [Fact]
